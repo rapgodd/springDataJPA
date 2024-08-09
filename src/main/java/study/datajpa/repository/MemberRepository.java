@@ -13,7 +13,7 @@ import java.util.Optional;
 
 //<엔티티 타입, id 타입>
 
-public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom{
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
     List<Member> findByUserNameAndAgeGreaterThan(String userName, int age);
 
     List<Member> findHelloBy();
@@ -80,4 +80,34 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      */
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
     Member findReadOnlyByUserName(@Param("username") String username);
+
+    /**
+     * 스프링 데이터 jpa를 사용홰서 엔티티 전체중 일부만 가져오고 싶으면
+     * 즉, 예를들어 유저 엔티티중 유저 이름만 가져오고 싶으면.
+     * 리포지토리에 인터페이스를 하나 만들고 원하는 필드를 넣는다.
+     * 그리고 data jpa에 메서드를 만들고 반환타입을 인터페이스 타입으로 넣는다.
+     */
+    List<UsernameOnly> findProjectionsByUserName(@Param("username") String userName);
+
+    /**
+     * 네이티브 쿼리를 하고 싶으면 뒤에 nativeQuery = true 를 추가하면 된다.
+     * 이름은 아무렇게나 해도 상관없다. 어차피 쿼리를 커스텀해서 날릴거기 때문에.
+     * 추천 X
+     */
+    @Query(value = "select * from member where userName = ?", nativeQuery = true)
+    Member findByNativeQuery(String userName);
+
+    /**
+     * 네이티브 쿼리를 사용하면서
+     * 원하는 것만 뽑고싶을때 & 동적쿼리 아닐때
+     * 사용가능한 것이다.
+     */
+    @Query(value = "select m.id as id," +
+            " m.userName, t.name as teamName " +
+            "from Member m left join Team t",
+            countQuery = "select count(*) from Member",
+            nativeQuery = true)
+    Page<findByNativeProjection> findBtNativeProj(Pageable pageable);
+
+
 }
