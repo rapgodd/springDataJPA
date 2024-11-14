@@ -7,7 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
@@ -146,7 +145,7 @@ class MemberRepositoryTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        List<Member> aa = memberRepository.findMemberByUserName("addsa");
+        List<Member> aa = memberRepository.findMemberByUserName("aa");
 
         System.out.println("aa.size() = " + aa.size());
 
@@ -262,6 +261,26 @@ class MemberRepositoryTest {
             System.out.println("usernameOnly = " + usernameOnly);
         }
     }
+
+    @Test
+    public void DTOtest() {
+        Team teamA = new Team("TeamA");
+        em.persist(teamA);
+
+        Member m1 = new Member(teamA,"m1",0);
+        Member m2 = new Member(teamA,"m2",0);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> m11 = memberRepository.findMember1("m1");
+
+    }
+
+
 
 
 

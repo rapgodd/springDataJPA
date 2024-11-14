@@ -36,6 +36,10 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     Page<Member> findByAge(int age, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m join m.team t where m.userName = :userName")
+    List<Member> findMember1(@Param("userName") String username);
+
     /**
      * 스프링 데이터 JPA로 벌크성 수정처리
      * (압데이트 한번에 모아서 하는것)하고 있다.
@@ -47,7 +51,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Query("update Member m set m.age = m.age + 1 where m.age >= : age")
     int bulkAgePlus(@Param("age") int age);
 
-    @Query("select m from Member m join fetch m.team")
+    @Query("select m from Member m join m.team")
     List<Member> findAllTeamMember();
 
     /**
@@ -70,7 +74,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      * 다른 예시
      */
     @EntityGraph(attributePaths = {"team"})
-    Member findByUserName(@Param("username") String username);
+    Member findByUserName(@Param("userName") String username);
 
     /**
      * 이 메서드가 오직 read만 할때 JPA가 Hibernate에게
@@ -79,7 +83,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      * (성능 최적화)
      */
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
-    Member findReadOnlyByUserName(@Param("username") String username);
+    Member findReadOnlyByUserName(@Param("userName") String userName);
+
 
     /**
      * 스프링 데이터 jpa를 사용홰서 엔티티 전체중 일부만 가져오고 싶으면
@@ -87,7 +92,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
      * 리포지토리에 인터페이스를 하나 만들고 원하는 필드를 넣는다.
      * 그리고 data jpa에 메서드를 만들고 반환타입을 인터페이스 타입으로 넣는다.
      */
-    List<UsernameOnly> findProjectionsByUserName(@Param("username") String userName);
+    List<UsernameOnly> findProjectionsByUserName(@Param("userName") String userName);
+
 
     /**
      * 네이티브 쿼리를 하고 싶으면 뒤에 nativeQuery = true 를 추가하면 된다.
